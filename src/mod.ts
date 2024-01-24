@@ -127,9 +127,10 @@ interface Webhook {
     id: string;
     customerEmail: string;
     isTest: boolean;
+    paymentLinkId: string;
     selectedBlockchain: BlockChain;
     selectedCurrency: FiatCurrency;
-    paymentLinkId: string;
+    status: Status,
 }
 
 // Main Client Class

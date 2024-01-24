@@ -1,4 +1,4 @@
-const { Client, Cryptocurrency, FiatCurrency } = require("./dist/mod.js");
+const { Client, Cryptocurrency, FiatCurrency } = require("../dist/mod.js");
 
 const MerchantId = '';
 const Token = '';
