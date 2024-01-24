@@ -1,0 +1,20 @@
+{
+  "name": "@flamesx128/oxygen-pay",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/mod.js",
+  "scripts": {
+    "preinstall": "npx tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/uuid": "^9.0.7",
+    "crypto-js": "^4.2.0",
+    "esbuild": "^0.19.12",
+    "typescript": "^5.3.3",
+    "uuid": "^9.0.1"
+  }
+}

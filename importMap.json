@@ -1,0 +1,8 @@
+{
+    "imports": {
+        "@types/crypto-js": "npm:@types/crypto-js",
+        "crypto-js": "npm:crypto-js",
+        "@types/uuid": "npm:@types/uuid",
+        "uuid": "npm:uuid"
+    }
+}
