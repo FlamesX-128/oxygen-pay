@@ -302,6 +302,106 @@ class Session extends Client {
     }
 }
 
+class ClientSession  {
+    protected readonly BASE_URL = 'https://api.o2pay.co/api';
+    protected readonly version: Version;
+
+    private cookie: string | null = null;
+    private csrf: string | null = null;
+    private requestId: string | null = null;
+
+    constructor(version: Version) {
+        this.version = version
+    }
+
+    private checkInitialization() {
+        if (!this.cookie || !this.csrf || !this.requestId) {
+            throw new Error('Not initialized');
+        }
+    }
+
+    protected async fetchData(url: string, method: string, body?: object): Promise<Response> {
+        const headers = {
+            'Application': 'application/json',
+            'Cookie': this.cookie!,
+            'Content-Type': 'application/json',
+            'X-Csrf-Token': this.csrf!,
+            'X-Request-Id': this.requestId!
+        };
+
+        const options: RequestInit = {
+            method, headers, body: body ? JSON.stringify(body) : undefined,
+        };
+
+        return await fetch(url, options);
+    }
+
+    public async init() {
+        const paymentURL = this.getPaymentUrl(`/payment/${this.version}/csrf-cookie`);
+        const response = await this.fetchData(paymentURL, 'GET');
+
+        this.cookie = response.headers.get('Set-Cookie');
+        this.csrf = response.headers.get('X-Csrf-Token');
+        this.requestId = response.headers.get('X-Request-Id');
+    }
+
+    public getPaymentUrl(path: string): string {
+        return `${this.BASE_URL}${path}`;
+    }
+
+    public async convertCurrency(convert: ConvertCurrency): Promise<CurrencyConverted> {
+        this.checkInitialization();
+
+        const paymentURL = this.getPaymentUrl(
+            `/payment/${this.version}/currency-convert?` +
+            `fiatCurrency=${convert.fiatCurrency}&` +
+            `fiatAmount=${convert.fiatAmount}&` +
+            `cryptoCurrency=${convert.cryptoCurrency}`
+        );
+
+        const response = await this.fetchData(paymentURL, 'GET');
+        return response.json();
+    }
+
+    public async getPaymentMethods(id: string): Promise<SupportedMethods> {
+        this.checkInitialization();
+
+        const paymentURL = this.getPaymentUrl(`/payment/${this.version}/payment/${id}/supported-method`);
+        const response = await this.fetchData(paymentURL, 'GET');
+
+        return response.json();
+    }
+
+    public async updatePaymentMethod(id: string, method: SupportedMethod) {
+        this.checkInitialization();
+
+        const paymentURL = this.getPaymentUrl(`/payment/${this.version}/payment/${id}/method`);
+        const response = await this.fetchData(paymentURL, 'POST', method);
+
+        return response.json();
+    }
+
+    public async updatePaymentCustomer(id: string, customer: PaymentCustomer) {
+        this.checkInitialization();
+
+        const paymentURL = this.getPaymentUrl(`/payment/${this.version}/payment/${id}/customer`);
+        const response = await this.fetchData(paymentURL, 'POST', customer);
+
+        return response.json();
+    }
+
+    public async updatePayment(id: string) {
+        this.checkInitialization();
+
+        const paymentURL = this.getPaymentUrl(`/payment/${this.version}/payment/${id}`);
+        await this.fetchData(paymentURL, 'PUT');
+
+        return {
+            message: 'Successfully'
+        };
+    }
+}
+
 export type {
     Config,
     ConvertCurrency,
@@ -320,6 +420,7 @@ export type {
 export {
     BlockChain,
     Client,
+    ClientSession,
     Cryptocurrency,
     FiatCurrency,
     Session,
