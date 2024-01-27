@@ -400,6 +400,13 @@ class ClientSession  {
             message: 'Successfully'
         };
     }
+
+    public async getPayment(id: string): Promise<Payment> {
+        const paymentURL = this.getPaymentUrl(`/payment/${this.version}/payment/${id}`);
+        const response = await this.fetchData(paymentURL, 'GET');
+
+        return response.json();
+    }
 }
 
 export type {
